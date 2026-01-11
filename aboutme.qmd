@@ -1,7 +1,27 @@
 ---
 title: "About me"
 ---
+  
+  ![](personal_photo.jpg)
 
-Add some text and a figure describing myself.
+I'm a Ph.D. candidate from the UGA Department of Plant Pathology. I'm currently based in the Griffin campus, about an hour south of Atlanta.  
+  
+**Current Research**  
+My current research project revolves around *Aspergillus flavus*, a fungus that infects and contaminates crops with highly carcinogenic aflatoxins. Our work is focused on exploring different omics-based and biotechnological approaches to develop novel tools and recommendations against aflatoxin contamination.  
 
-For details, see the instructions. 
+**Statistics Background**    
+I'll be taking Modern Applied Data Analysis (MADA) after taking Experimental Design and Analysis in Field Plant Biology (PBIO(PATH)8250) which discussed statistical inference, general linear models, generalized linear models, mixed models, multivariate analyses, structural equation models, bayesian probability and inference, and a lot of work in R.  
+
+Aside from coursework, my research project also gives me sufficient hands-on experience with transcriptome and comparative genome analyses - mostly using Bash (through GACRC) and R.  
+  
+**Why MADA?**  
+The primary reason I enrolled in MADA is to satisfy the curriculum requirements for the Graduate Certificate in Bioinformatics. However, I am excited for the class as it covers subjects and tools I am unfamiliar with (e.g., Positron, Quarto, machine learning models). Additionally, I am passionate about data analysis, particularly making sure it's done right.
+
+For this exercise, I would like to share this [website](https://medium.com/@nikhil_garg/a-compilation-of-comics-explaining-statistics-data-science-and-machine-learning-eeefbae91277). I was introduced to it from a previous statistics class - it's a compilation of entertaining comic panels that explain statistics concepts. For example, one of my favorites would be this one:  
+
+![](comic.png)    
+
+It just reminds me how I felt after learning statistics: instead of feeling more confident in what was certain, it just made me more reserved in declaring such statements.
+
+
+
