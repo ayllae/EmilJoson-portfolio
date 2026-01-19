@@ -30,6 +30,7 @@ P1 <- ggplot(africadata1, aes(x=infant_mortality, y=life_expectancy))+
 P2 <- ggplot(africadata2, aes(x=population, y=life_expectancy))+
     geom_point()+
     scale_x_log10()+
+    labs(x="population (log10)")+
     theme_bw()
 
 grid.arrange(P1, P2, ncol=2)
@@ -57,6 +58,7 @@ P3 <- ggplot(africadata3, aes(x=infant_mortality, y=life_expectancy))+
 P4 <- ggplot(africadata4, aes(x=population, y=life_expectancy))+
     geom_point()+
     scale_x_log10()+
+    labs(x="population (log10)")+
     theme_bw()
 
 grid.arrange(P3, P4, ncol=2)
