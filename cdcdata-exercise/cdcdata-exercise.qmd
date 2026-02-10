@@ -1,0 +1,221 @@
+---
+title: "CDC Data Exercise"
+---
+
+For this exercise, the dataset I'll be working on is called the [NCHS - Leading causes of Death: United States](https://data.cdc.gov/National-Center-for-Health-Statistics/NCHS-Leading-Causes-of-Death-United-States/bi63-dtpu/about_data). In summary, this dataset presents the age-adjust death rates for the 10 leading causes of death in the United States since 1999. 
+
+Published by the **National Center for Health Statistics**, the dataset is described as follows:
+
+*"Data are based on information from all resident death certificates filed in the 50 states and the District of Columbia using demographic and medical characteristics. Age-adjusted death rates (per 100,000 population) are based on the 2000 U.S. standard population. Populations used for computing death rates after 2010 are postcensal estimates based on the 2010 census, estimated as of July 1, 2010. Rates for census years are based on populations enumerated in the corresponding censuses. Rates for non-census years before 2010 are revised using updated intercensal population estimates and may differ from rates previously published.*
+
+*Causes of death classified by the International Classification of Diseases, Tenth Revision (ICD–10) are ranked according to the number of deaths assigned to rankable causes. Cause of death statistics are based on the underlying cause of death."*
+
+**Load Libraries**
+```{r setup, warning = FALSE, message = FALSE} 
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(gridExtra)
+```
+
+**Load Data**
+```{r}
+raw_data <- read.csv2(here("cdcdata-exercise", "NCHS_-_Leading_Causes_of_Death__United_States_20260209.csv"), sep = ",")
+```
+
+**Check Data**
+```{r}
+nrow(raw_data) #counting rows = counting entries
+ncol(raw_data) #counting columns = counting variables
+str(raw_data) #check structure
+head(raw_data) #check top of data
+tail(raw_data) #check bottom of data
+colSums(is.na(raw_data)) #check for missing data
+unique(raw_data$Year)
+unique(raw_data$State) 
+unique(raw_data$Cause.Name)
+unique(raw_data$X113.Cause.Name)
+```
+
+From checking the data, here's what stood out to me:
+
+_1. Variables "Deaths" and "Age.adjusted.Death.Rate" are numbers but are stored as characters (I assume) because of commas._
+
+_2. Fortunately, the dataset doesn't appear to have missing data._
+
+_3. Year only runs from 1999 to 2017._
+
+_4. 52 states are listed because in addition to the 50 states, the variable State also contains "District of Columbia" and "United States."_
+
+_5. It seems like there are two variables that describe the same thing: cause of death. It's just that one is more simplified than the other._
+
+**Clean Data**
+```{r}
+#Duplicating dataframe to clean up
+clean_data <- raw_data
+
+#converting variables "Deaths" and "Age.adjusted.Death.Rate" into integer and numerical variables
+#Using gsub to remove the commas
+clean_data$Deaths <- as.integer(gsub(",", "", clean_data$Deaths))
+clean_data$Age.adjusted.Death.Rate <- as.numeric(gsub(",", "", clean_data$Age.adjusted.Death.Rate))
+```
+
+**Exploratory Data Analysis**
+
+```{r}
+#Let's see how each cause of death did throughout the years
+
+clean_data %>% 
+    group_by(Cause.Name) %>%
+    filter(State == "United States") %>%
+    summarise(total_deaths = sum(Deaths)) %>%
+    arrange(desc(total_deaths))
+
+P1 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Heart disease") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Heart Disease")
+
+P2 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Cancer") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Cancer")
+
+P3 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Stroke") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Stroke")
+
+P4 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "CLRD") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "CLRD")
+
+P5 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Unintentional injuries") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Unintentional Injuries")
+
+P6 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Alzheimer's disease") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Alzheimer's Disease")
+
+P7 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Diabetes") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Diabetes")
+    
+P8 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Influenza and pneumonia") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Influenza and Pneumonia")
+
+P9 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Kidney disease") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Kidney Disease")
+
+P10 <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Suicide") %>%
+    ggplot(aes(x = Year, y = Deaths)) +
+    geom_line()+
+    theme_classic()+
+    labs(title = "Suicide")
+
+grid.arrange(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, ncol = 2, nrow = 5)
+
+#Let's see how they all did when graphed together.
+
+clean_data %>%
+    filter(State == "United States") %>%
+    filter(!Cause.Name == "All causes") %>%
+    ggplot(aes(x = Year, y = Deaths, group = Cause.Name, color = Cause.Name)) +
+    geom_line()+
+    theme_classic()
+
+#Being in Georgia, let's see the top causes of death in Georgia and see if the order would match the order seen when looking across the whole country.
+
+clean_data %>%
+    group_by(Cause.Name) %>%
+    filter(State == "Georgia") %>%
+    summarise(total_deaths = sum(Deaths)) %>%
+    arrange(desc(total_deaths))
+
+```
+
+From our exploratory data analysis, these are what stood out to me:
+
+1. A couple of causes of death, like heart disease and stroke, actually dipped toward 2010 and slowly climbed back up.
+
+2. On the other hand, few other causes of death steadily increased across time (e.g., cancer, unintentional injuries, CLRD, Alzheimer's, suicide.
+
+3. Looking at them all together, we get a better sense of how vast the difference is in the deaths caused by heart disease and cancer compared to all other causes of death.
+
+3. When looking at Georgia compared to the national perspective:
+    a. unintentional injuries were more prevalent than CLRD,
+    b. kidney diseases were more prevalent than influenza and pneumonia.
+
+**Specific Questions**
+_1. Which states have the highest and lowest death rates from cancer?_
+```{r}
+clean_data %>%
+    filter(Cause.Name == "Cancer") %>%
+    ggplot(aes(x = reorder(State, Age.adjusted.Death.Rate), y = Age.adjusted.Death.Rate)) +
+    geom_boxplot()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle = 90))
+
+clean_data %>%
+    filter(!State == "United States") %>%
+    filter(Cause.Name == "Cancer") %>%
+    ggplot(aes(x = reorder(State, Deaths), y = Deaths)) +
+    geom_boxplot()+
+    theme_classic()+
+    theme(axis.text.x = element_text(angle = 90))
+```
+
+It's interesting to see conclusions based on looking at more than one variable. For example, just by looking at the number of deaths due to cancer, we see that California has the highest number of deaths due to cancer than other states. However, if we look at the death rates, California actually ranks really low. In fact, the top three states with the most deaths due to cancer (California, Florida, Texas), are actually on the bottom half when looking at death rates. 
+
+_2. Cancer has gone up over the years. How has the death rate been?_
+```{r}
+P2b <- clean_data %>%
+    filter(State == "United States") %>%
+    filter(Cause.Name == "Cancer") %>%
+    ggplot(aes(x = Year, y = Age.adjusted.Death.Rate)) +
+    geom_line()+
+    theme_classic()
+
+grid.arrange(P2, P2b, ncol = 2, nrow = 1)
+```
+
+So despite the number of deaths due to cancer going up, we've actually had amazing advances to reduce cancer death rates.
