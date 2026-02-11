@@ -36,6 +36,9 @@ unique(raw_data$Year)
 unique(raw_data$State) 
 unique(raw_data$Cause.Name)
 unique(raw_data$X113.Cause.Name)
+ggplot(raw_data, aes(x = State)) +
+    geom_bar()+
+    theme(axis.text.x = element_text(angle = 90))
 ```
 
 From checking the data, here's what stood out to me:
@@ -46,7 +49,7 @@ _2. Fortunately, the dataset doesn't appear to have missing data._
 
 _3. Year only runs from 1999 to 2017._
 
-_4. 52 states are listed because in addition to the 50 states, the variable State also contains "District of Columbia" and "United States."_
+_4. 52 states are listed because in addition to the 50 states, the variable State also contains "District of Columbia" and "United States. At the very least, the dataset is consistent that the entries for each state is equal based on the figure."_
 
 _5. It seems like there are two variables that describe the same thing: cause of death. It's just that one is more simplified than the other._
 
@@ -204,7 +207,24 @@ clean_data %>%
     theme(axis.text.x = element_text(angle = 90))
 ```
 
-It's interesting to see conclusions based on looking at more than one variable. For example, just by looking at the number of deaths due to cancer, we see that California has the highest number of deaths due to cancer than other states. However, if we look at the death rates, California actually ranks really low. In fact, the top three states with the most deaths due to cancer (California, Florida, Texas), are actually on the bottom half when looking at death rates. 
+It's interesting to see conclusions based on looking at more than one variable. For example, just by looking at the number of deaths due to cancer, we see that California has the highest number of deaths due to cancer than other states. However, if we look at the death rates, California actually ranks really low. In fact, the top three states with the most deaths due to cancer (California, Florida, Texas), are actually on the bottom half when looking at death rates. In fact, let's take a look at numbers for death rates in cancer across states.
+
+```{r}
+#mean deaths and death rates by State
+clean_data %>%
+  group_by(State) %>%
+  summarise(
+    avg_death_rate = mean(Age.adjusted.Death.Rate),
+    avg_deaths     = mean(Deaths)) %>%
+        print(n=52)
+    
+#mean deaths and death rates by Year
+clean_data %>%
+  group_by(Year) %>%
+  summarise(
+    avg_death_rate = mean(Age.adjusted.Death.Rate),
+    avg_deaths     = mean(Deaths))
+```
 
 _2. Cancer has gone up over the years. How has the death rate been?_
 ```{r}
@@ -219,3 +239,5 @@ grid.arrange(P2, P2b, ncol = 2, nrow = 1)
 ```
 
 So despite the number of deaths due to cancer going up, we've actually had amazing advances to reduce cancer death rates.
+
+
