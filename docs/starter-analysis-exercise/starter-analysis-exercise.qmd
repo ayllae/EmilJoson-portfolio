@@ -1,0 +1,142 @@
+---
+title: "Data Analysis Introduction"
+---
+Disclaimer: ChatGPT was used to aid in R usage.
+
+```{r}
+library("dslabs")
+library("tidyverse")
+library("ggplot2")
+library("gridExtra")
+
+#creating an object from df:gapminder that only contains African countries
+africadata <- gapminder %>%
+    filter(region %in% c("Northern Africa", "Southern Africa", "Western Africa", "Eastern Africa", "Middle Africa"))
+
+#creating an object from df:africadata that only contains infant_mortality and life_expectancy
+africadata1 <- africadata %>%
+    select(infant_mortality, life_expectancy)
+
+#creating an object from df:africadata that only contains population and life_expectancy
+africadata2 <- africadata %>%
+    select(population, life_expectancy)
+
+#plotting life_expectancy as a function of infant_mortality using df:africadata1
+P1 <- ggplot(africadata1, aes(x=infant_mortality, y=life_expectancy))+
+    geom_point()+
+    theme_bw()
+
+#plotting life_expectancy as a function of population using df:africadata2
+P2 <- ggplot(africadata2, aes(x=population, y=life_expectancy))+
+    geom_point()+
+    scale_x_log10()+
+    labs(x="population (log10)")+
+    theme_bw()
+
+grid.arrange(P1, P2, ncol=2)
+
+#checking which years have missing data on infant_mortality
+aggregate(is.na(infant_mortality) ~ year, data=africadata, sum)
+
+#creating an object from df:africadata that only contains data from year 2000
+africadata2000 <- africadata[africadata$year==2000,]
+
+#creating an object from df:africadata2000 that only contains infant_mortality and life_expectancy
+africadata3 <- africadata2000 %>%
+    select(infant_mortality, life_expectancy)
+
+#creating an object from df:africadata2000 that only contains population and life_expectancy
+africadata4 <- africadata2000 %>%
+    select(population, life_expectancy)
+
+#plotting life_expectancy as a function of infant_mortality using df:africadata3
+P3 <- ggplot(africadata3, aes(x=infant_mortality, y=life_expectancy))+
+    geom_point()+
+    theme_bw()
+
+#plotting life_expectancy as a function of population using df:africadata4
+P4 <- ggplot(africadata4, aes(x=population, y=life_expectancy))+
+    geom_point()+
+    scale_x_log10()+
+    labs(x="population (log10)")+
+    theme_bw()
+
+grid.arrange(P3, P4, ncol=2)
+
+#using the lm function to fit life expectancy as the outcome and infant mortality as the predictor using df:africadata3
+fit1 <- lm(life_expectancy ~ infant_mortality, data=africadata3)
+summary(fit1)
+#Infant mortality was strongly negatively associated with life expectancy (-0.19, p=2.83e-08). If infant mortality = 0, the average life expectancy would be 71.3 years. For each unit increase in infant mortality, the model assumes life expectancy to go down by 0.19 years (~2.4 months).
+
+#using the lm function to fit life expectancy as the outcome and population as the predictor using df:africadata4
+fit2 <- lm(life_expectancy ~ population, data=africadata4)
+summary(fit2) 
+#Population size was not associated with life expectancy (2.756e-08, p=0.616). Unlike infant mortality, population size only explained ~0.5% (Multiple R-squared) of the variation in life expectancy.
+
+
+```
+
+```{r}
+# This section was contributed to by Anissa Waller Del Valle. 
+
+# Load necessary libraries.
+library("dslabs") 
+library("tidyverse") 
+library("ggplot2")
+
+# I will be using the us_contagious_disease dataset from the dslabs package. 
+# Examine data structure.
+structure(us_contagious_diseases)
+# Obtain summary of data.
+summary(us_contagious_diseases)
+
+# By 1980, all U.S. states passed laws that required children entering public school to be vaccinated against measles. I want to compare the number of cases of measles in Georgia in 1980 to the number of cases in measles in Georgia in 1990 and 2000. 
+
+# Filter the data to look at the number of measles cases in Georgia, USA in 1980, 1990, and 2000. Make them three seperate objects. 
+ga_measles_1980 <- us_contagious_diseases %>%
+    filter(state == "Georgia", disease == "Measles", year == "1980")
+
+ga_measles_1990 <- us_contagious_diseases %>%
+    filter(state == "Georgia", disease == "Measles", year == "1990")
+
+ga_measles_2000 <- us_contagious_diseases %>%
+    filter(state == "Georgia", disease == "Measles", year == "2000")
+
+# View all objects. 
+ga_measles_1980
+ga_measles_1990
+ga_measles_2000
+```
+
+```{r}
+# There were 847 counts of measles in Georgia, USA in 1980. There were 44 counts of measles in Georgia, USA in 1990. There were 0 counts of measles in Georgia, USA in 2000. I will make a table to summarize this information. 
+
+# First, determine number of cases in 1980, 1990, and 2000. 
+count_1980 <- ga_measles_1980$count
+count_1990 <- ga_measles_1990$count
+count_2000 <- ga_measles_2000$count
+
+# Make table.
+measles_cases_in_ga_1980vs1990vs2000 <- tibble(Year = c(1980, 1990, 2000), Cases = c(count_1980, count_1990, count_2000))
+
+# Visualize table.
+print(measles_cases_in_ga_1980vs1990vs2000)
+
+# Make a bar graph comparing the cases in 1980, 1990, and 2000.
+ggplot(measles_cases_in_ga_1980vs1990vs2000, aes(x=factor(Year), y=Cases)) +
+    geom_col(fill="firebrick") +
+    labs(
+        title = "Measles Cases in Georgia: 1980 vs. 2000",
+        x = "Year",
+        y = "Number of Measles Cases"
+    )
+
+# Run a simple linear regression model to explore the significance of this data.
+
+lm_ga_measles <- lm(Cases ~ Year, data = measles_cases_in_ga_1980vs1990vs2000)
+
+# View data.
+summary(lm_ga_measles)
+
+# Linear regression of measles cases in Georgia, USA in 1980, 1990, and 2000 shows a downward trend over time. The p-value is marginally above 0.05, indicating that the data is non-significant, but this may be due to statistical interference as there are only three data points being assessed. Regardless, this demonstrates that there was a dramatic decline in the number of measles cases, likely due to public health and vaccination efforts. 
+```
