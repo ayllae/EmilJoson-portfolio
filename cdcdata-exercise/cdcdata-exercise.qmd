@@ -240,4 +240,463 @@ grid.arrange(P2, P2b, ncol = 2, nrow = 1)
 
 So despite the number of deaths due to cancer going up, we've actually had amazing advances to reduce cancer death rates.
 
+**This part was contributed by Aylla von Ermland:**
+
+The AI prompt used to generate the synthetic data was: 
+
+"*Write clean, reproducible R code (tidyverse, no loops) that generates a synthetic U.S. mortality dataset based on U.S. resident death certificates using the mean distribution of a real dataset provided below. Dataset structure is columns: Year, 113 Cause Name, Cause Name, State, Deaths, Age-adjusted Death Rate.*"
+
+"*Years are between 1999–2017 (19 years total) and states are 52 in total (Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware, District of Columbia, Florida, Georgia, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana, Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana, Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina, North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Rhode Island, South Carolina, South Dakota, Tennessee, Texas, United States, Utah, Vermont, Virginia, Washington, West Virginia, Wisconsin, Wyoming.)*"
+
+"*Causes of death are 11 total, include both simplified and detailed ICD-style names: All causes, Heart disease, Cancer, Stroke, CLRD, Unintentional injuries, Alzheimer’s disease, Diabetes, Influenza and pneumonia, Kidney disease, Suicide.*"
+
+"*To create this dataset use the same proportions of the means seen below:*"
+
+Year, Avg_death_rate, Avg_deaths:
+
+1999 144 15025
+2000 142 15054
+2001 140 15090
+2002 140 15253
+2003 138 15246
+2004 132 14901
+2005 133 15168
+2006 129 14968
+2007 126 14930
+2008 126 15192
+2009 122 14950
+2010 121 15108
+2011 120 15331
+2012 118 15454
+2013 118 15760
+2014 118 15961
+2015 119 16523
+2016 119 16708
+2017 119 17116
+
+Average (Death Rate, Average Number of Deaths):
+
+Alabama (153, 7672)
+Alaska (123, 564)
+Arizona (117, 7524)
+Arkansas (148, 4725)
+California (112, 39089)
+Colorado (113, 4973)
+Connecticut (111, 4694)
+Delaware (128, 1220)
+District of Columbia (137, 808)
+Florida (116, 28078)
+Georgia (138, 11130)
+Hawaii (99.2, 1534)
+Idaho (121, 1797)
+Illinois (126, 16698)
+Indiana (138, 9257)
+Iowa (120, 4567)
+Kansas (126, 3980)
+Kentucky (152, 6813)
+Louisiana (151, 6744)
+Maine (126, 2074)
+Maryland (123, 7032)
+Massachusetts (114, 8671)
+Michigan (132, 14408)
+Minnesota (108, 6163)
+Mississippi (159, 4747)
+Missouri (138, 9117)
+Montana (125, 1410)
+Nebraska (119, 2455)
+Nevada (134, 3123)
+New Hampshire (119, 1693)
+New Jersey (118, 11469)
+New Mexico (123, 2494)
+New York (115, 24694)
+North Carolina (134, 12479)
+North Dakota (116, 967)
+Ohio (137, 17781)
+Oklahoma (152, 5948)
+Oregon (120, 5091)
+Pennsylvania (129, 20596)
+Rhode Island (120, 1568)
+South Carolina (140, 6530)
+South Dakota (121, 1168)
+Tennessee (149, 9628)
+Texas (128, 26483)
+United States (126, 401958)
+Utah (114, 2261)
+Vermont (119, 858)
+Virginia (125, 9518)
+Washington (118, 7823)
+West Virginia (154, 3454)
+Wisconsin (120, 7690)
+Wyoming (127, 695)
+
+"*Some requirements is to create exactly 200 rows per state, preserve yearly and state level averages approximately, use set.seed() for reproducibility, store number of Deaths and "Age-adjusted Death Rate" as numeric export final dataset to CSV and use tidyverse code,*"
+
+**Generating synthetic dataset:**
+
+```{r}
+library(tidyverse)
+
+set.seed(123)
+
+years <- 1999:2017
+
+year_targets <- tribble(
+  ~Year, ~Avg_death_rate, ~Avg_deaths,
+  1999, 144, 15025,
+  2000, 142, 15054,
+  2001, 140, 15090,
+  2002, 140, 15253,
+  2003, 138, 15246,
+  2004, 132, 14901,
+  2005, 133, 15168,
+  2006, 129, 14968,
+  2007, 126, 14930,
+  2008, 126, 15192,
+  2009, 122, 14950,
+  2010, 121, 15108,
+  2011, 120, 15331,
+  2012, 118, 15454,
+  2013, 118, 15760,
+  2014, 118, 15961,
+  2015, 119, 16523,
+  2016, 119, 16708,
+  2017, 119, 17116
+)
+
+state_targets <- tribble(
+  ~State, ~state_mean_rate, ~state_mean_deaths,
+  "Alabama",153,7672,
+  "Alaska",123,564,
+  "Arizona",117,7524,
+  "Arkansas",148,4725,
+  "California",112,39089,
+  "Colorado",113,4973,
+  "Connecticut",111,4694,
+  "Delaware",128,1220,
+  "District of Columbia",137,808,
+  "Florida",116,28078,
+  "Georgia",138,11130,
+  "Hawaii",99.2,1534,
+  "Idaho",121,1797,
+  "Illinois",126,16698,
+  "Indiana",138,9257,
+  "Iowa",120,4567,
+  "Kansas",126,3980,
+  "Kentucky",152,6813,
+  "Louisiana",151,6744,
+  "Maine",126,2074,
+  "Maryland",123,7032,
+  "Massachusetts",114,8671,
+  "Michigan",132,14408,
+  "Minnesota",108,6163,
+  "Mississippi",159,4747,
+  "Missouri",138,9117,
+  "Montana",125,1410,
+  "Nebraska",119,2455,
+  "Nevada",134,3123,
+  "New Hampshire",119,1693,
+  "New Jersey",118,11469,
+  "New Mexico",123,2494,
+  "New York",115,24694,
+  "North Carolina",134,12479,
+  "North Dakota",116,967,
+  "Ohio",137,17781,
+  "Oklahoma",152,5948,
+  "Oregon",120,5091,
+  "Pennsylvania",129,20596,
+  "Rhode Island",120,1568,
+  "South Carolina",140,6530,
+  "South Dakota",121,1168,
+  "Tennessee",149,9628,
+  "Texas",128,26483,
+  "United States",126,401958,
+  "Utah",114,2261,
+  "Vermont",119,858,
+  "Virginia",125,9518,
+  "Washington",118,7823,
+  "West Virginia",154,3454,
+  "Wisconsin",120,7690,
+  "Wyoming",127,695
+)
+
+states <- state_targets$State
+##Causes of death
+causes_map <- tribble(
+  ~`Cause Name`, ~`113 Cause Name`,
+  "All causes", "All causes (A00-Y89)",
+  "Heart disease", "Diseases of heart (I00-I09,I11,I13,I20-I51)",
+  "Cancer", "Malignant neoplasms (C00-C97)",
+  "Stroke", "Cerebrovascular diseases (I60-I69)",
+  "CLRD", "Chronic lower respiratory diseases (J40-J47)",
+  "Unintentional injuries", "Accidents (V01-X59,Y85-Y86)",
+  "Alzheimer’s disease", "Alzheimer disease (G30)",
+  "Diabetes", "Diabetes mellitus (E10-E14)",
+  "Influenza and pneumonia", "Influenza and pneumonia (J09-J18)",
+  "Kidney disease", "Nephritis (N00-N07,N17-N19)",
+  "Suicide", "Intentional self-harm (X60-X84,Y87.0)"
+)
+
+# Give causes relative weights (mean normalized to 1)
+cause_scales <- tibble(
+  `Cause Name` = causes_map$`Cause Name`,
+  weight = c(1.6,1.25,1.2,0.7,0.7,0.9,0.75,0.75,0.65,0.65,0.6)
+) %>%
+  mutate(scale = weight / mean(weight)) %>%
+  select(-weight)
+
+#Build expected state/year means
+
+year_multipliers <- year_targets %>%
+  mutate(
+    year_mult_deaths = Avg_deaths / mean(Avg_deaths),
+    year_mult_rate   = Avg_death_rate / mean(Avg_death_rate)
+  ) %>%
+  select(Year, year_mult_deaths, year_mult_rate)
+
+expected <- crossing(State = states, Year = years) %>%
+  left_join(state_targets, by = "State") %>%
+  left_join(year_multipliers, by = "Year") %>%
+  mutate(
+    expected_deaths = state_mean_deaths * year_mult_deaths,
+    expected_rate   = state_mean_rate * year_mult_rate
+  ) %>%
+  select(State, Year, expected_deaths, expected_rate)
+
+#Generate exactly 200 Rows Per State
+n_per_state <- 200
+
+year_probs <- year_targets %>%
+  mutate(p = Avg_deaths / sum(Avg_deaths))
+
+raw_data <- tibble(State = states) %>%
+  mutate(
+    Year = map(State, ~ sample(year_probs$Year, n_per_state, replace = TRUE, prob = year_probs$p)),
+    `Cause Name` = map(State, ~ sample(causes_map$`Cause Name`, n_per_state, replace = TRUE))
+  ) %>%
+  unnest(c(Year, `Cause Name`)) %>%
+  left_join(causes_map, by = "Cause Name") %>%
+  left_join(cause_scales, by = "Cause Name") %>%
+  left_join(expected, by = c("State","Year")) %>%
+  mutate(
+    mu_deaths = expected_deaths * scale,
+    mu_rate   = expected_rate * scale,
+    Deaths = rlnorm(n(), log(pmax(mu_deaths,1)), 0.35),
+    `Age-adjusted Death Rate` = rlnorm(n(), log(pmax(mu_rate,0.1)), 0.18)
+  ) %>%
+  select(Year, `113 Cause Name`, `Cause Name`, State, Deaths, `Age-adjusted Death Rate`)
+
+calibrate <- function(df, iters = 5) {
+
+  reduce(
+    seq_len(iters),
+    .init = df,
+    .f = function(current, i){
+
+      # State scaling
+      current <- current %>%
+        left_join(state_targets, by = "State") %>%
+        group_by(State) %>%
+        mutate(
+          Deaths = Deaths * (state_mean_deaths / mean(Deaths)),
+          `Age-adjusted Death Rate` =
+            `Age-adjusted Death Rate` *
+            (state_mean_rate / mean(`Age-adjusted Death Rate`))
+        ) %>%
+        ungroup() %>%
+        select(-state_mean_rate, -state_mean_deaths)
+
+      # Year scaling
+      current <- current %>%
+        left_join(year_targets, by = "Year") %>%
+        group_by(Year) %>%
+        mutate(
+          Deaths = Deaths * (Avg_deaths / mean(Deaths)),
+          `Age-adjusted Death Rate` =
+            `Age-adjusted Death Rate` *
+            (Avg_death_rate / mean(`Age-adjusted Death Rate`))
+        ) %>%
+        ungroup() %>%
+        select(-Avg_death_rate, -Avg_deaths)
+
+      current
+    }
+  )
+}
+
+synthetic_data <- raw_data %>%
+  calibrate(iters = 6) %>%
+  mutate(
+    Deaths = as.numeric(round(pmax(Deaths,0))),
+    `Age-adjusted Death Rate` = as.numeric(round(`Age-adjusted Death Rate`,1))
+  ) %>%
+  arrange(State, Year)
+
+write_csv(
+  synthetic_data,
+  here("cdcdata-exercise/synthetic_mortality_dataset.csv")
+)
+
+synthetic_data %>% count(State)    # 200 rows per state
+synthetic_data %>% count(State, Year) %>% head()
+```
+
+Now, let's inspect the data: 
+
+```{r}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(here)
+library(gridExtra)
+
+data <- read_csv(
+  here("synthetic_mortality_dataset.csv"),
+  locale = locale(encoding = "UTF-8"),
+  show_col_types = FALSE
+)
+
+colnames(data)
+summary(data)
+
+clean_data <- data
+
+```
+
+Making sure there is the same number of reports per state (200): 
+
+```{r}
+
+ggplot(clean_data, aes(x = State)) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 90))
+
+```
+
+Now I will analyze this dataset using some approaches previously used by Emil, starting with the number of deaths per cause of death over the years:
+
+```{r}
+
+clean_data %>% 
+  group_by(`Cause Name`) %>%   
+  filter(State == "United States") %>%
+  summarise(total_deaths = sum(Deaths)) %>%
+  arrange(desc(total_deaths))
+
+P1 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Heart disease") %>%   
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Heart Disease")
+
+P2 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Cancer") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Cancer")
+
+P3 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Stroke") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Stroke")
+
+P4 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "CLRD") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "CLRD")
+
+P5 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Unintentional injuries") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Unintentional Injuries")
+
+P6 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(str_detect(`Cause Name`, "Alzheimer")) %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Alzheimer's Disease")
+
+P7 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Diabetes") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Diabetes")
+    
+P8 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Influenza and pneumonia") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Influenza and Pneumonia")
+
+P9 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Kidney disease") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Kidney Disease")
+
+P10 <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Suicide") %>%
+  ggplot(aes(x = Year, y = Deaths)) +
+  geom_line() +
+  theme_classic() +
+  labs(title = "Suicide")
+
+grid.arrange(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10,
+             ncol = 2, nrow = 5)
+```
+
+
+```{r}
+#Let's see how they all did when graphed together.
+clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` != "All causes") %>%
+  ggplot(aes(x = Year,
+             y = Deaths,
+             group = `Cause Name`,
+             color = `Cause Name`)) +
+  geom_line() +
+  theme_classic()
+```
+
+This next piece of analysis examines the number of cancer deaths throughout the years:
+
+```{r}
+P2b <- clean_data %>%
+  filter(State == "United States") %>%
+  filter(`Cause Name` == "Cancer") %>%
+  ggplot(aes(x = Year, y = `Age-adjusted Death Rate`)) +
+  geom_line() +
+  theme_classic()
+
+grid.arrange(P2, P2b, ncol = 2, nrow = 1)
+```
+
+**Observations based on real data analyzed by Emil and synthetic data generated:**
+
+- Overall, the data follow a similar pattern over the years in terms of peaks, decreases, and increases in the number of deaths. However, the synthetic dataset appears more variable in its progression over time across all generated plots as we can see in the second figure showing all causes of death death x number of cases over time. 
+
+- In the final plot, which shows the number of deaths caused by Cancer over time, it is possible to observe the same general pattern previously mentioned: an increase in the early 2000s, a decrease around 2005, and another increase in subsequent years. In both the real and simulated datasets, the age-adjusted death rate shows a general reduction over time.
 
